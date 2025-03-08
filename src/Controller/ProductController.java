@@ -1,8 +1,10 @@
 package Controller;
 
+import Constant.Constant;
 import Model.BackupFile;
 import Model.Product;
 import Model.ProductImplement;
+import Utils.Validation;
 import View.ProductView;
 
 import java.io.File;
@@ -16,6 +18,9 @@ public class ProductController {
   private final ArrayList<Product> tempInsertProducts;
   private final ArrayList<Product> tempUpdateProducts;
   private final String backupDirectory = "backups/";
+  Validation v = new Validation();
+  Constant c = new Constant();
+
 
   public ProductController(ProductImplement pim, ProductView pv) {
     this.pim = pim;
@@ -275,7 +280,7 @@ public class ProductController {
       if (products.isEmpty()) {
         System.out.println("No products found matching the search term: " + name);
       } else {
-        System.out.println("Search Results:");
+        System.out.println("Search Results : ");
         pv.displayProductsByName(products);
       }
     } catch (SQLException e) {
@@ -347,8 +352,7 @@ public class ProductController {
 
   // Handle backup operation
   public void handleBackup() {
-    System.out.print("=> Are you sure you want to backup the data? (y/n) : ");
-    String choice = pv.getScanner().nextLine().trim().toUpperCase();
+    String choice = v.validateInput(c.ARE_YOU_SURE, "=> Are you sure you want to backup the data? (y/n) : ", s -> s).trim().toUpperCase();
 
     if (choice.equals("Y")) {
       String backupFileName = generateBackupFileName();
@@ -362,27 +366,45 @@ public class ProductController {
     if (backupFiles.isEmpty()) {
       System.out.println("No backups available!");
     }
-
     pv.displayBackupFiles(backupFiles);
 
-    System.out.print("=> Enter backup_id to restore : ");
-    int restore_id = Integer.parseInt(pv.getScanner().nextLine().trim());
+    int maxAttempts = 3;
+    int attemptCount = 0;
 
-    if (restore_id > 0 && restore_id <= backupFiles.size()) {
-      BackupFile selectedBackup = backupFiles.get(restore_id - 1);
-      //Execute restore
-      executeRestore(selectedBackup.getFilePath());
-
+    while (attemptCount < maxAttempts) {
       try {
-        List<Product> products = pim.getAllProducts();
-        pv.displayAllProductsAndMenu(products, this);
-      } catch (SQLException e) {
-        System.err.println("An error occurred while refetching data: " + e.getMessage());
+        int restore_id = v.validateInput(c.INT, "=> Enter backup_id to restore : ", Integer::parseInt);
+        if (restore_id > 0 && restore_id <= backupFiles.size()) {
+          BackupFile selectedBackup = backupFiles.get(restore_id - 1);
+          //Execute restore
+          executeRestore(selectedBackup.getFilePath());
+          try {
+            List<Product> products = pim.getAllProducts();
+            pv.displayAllProductsAndMenu(products, this);
+          } catch (SQLException e) {
+            System.err.println("An error occurred while refetching data: " + e.getMessage());
+          }
+          return;
+        } else {
+          System.out.println("Invalid choice! Please try again.");
+          attemptCount++;
+        }
+      } catch (NumberFormatException e) {
+        System.out.println("Invalid input! Please enter a valid number.");
+        attemptCount++;
       }
-    } else {
-      System.out.println("Invalid choice!");
-    }
 
+      if(attemptCount >= maxAttempts){
+        String choice = v.validateInput(c.ARE_YOU_SURE, "Do you want to continue (y/n) : ", s->s).toUpperCase();
+
+        if(choice.equals("Y")){
+          attemptCount = 0;
+        }else {
+          return;
+        }
+      }
+
+    }
   }
 
   // List all backup files for Display
@@ -397,15 +419,14 @@ public class ProductController {
       }
     }
 
-    backupFiles.sort(Comparator.comparingInt(BackupFile::getVersion).reversed());
+    backupFiles.sort(Comparator.comparingInt(BackupFile::getVersion));
 
     return backupFiles;
   }
 
   // Execute restore using pg_restore
   public void executeRestore(String backupFilePath) {
-    System.out.print("Are you sure you want to restore this backup? (y/n): ");
-    String choice = pv.getScanner().nextLine().trim().toUpperCase();
+    String choice = v.validateInput(c.ARE_YOU_SURE, "=> Are you sure you want to restore the data? (y/n) : ", s -> s).trim().toUpperCase();
 
     if (choice.equals("Y")) {
       try {

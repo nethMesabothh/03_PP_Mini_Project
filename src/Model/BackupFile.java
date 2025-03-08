@@ -16,14 +16,19 @@ public class BackupFile {
     this.date = parseDate(fileName);
   }
 
+
   private int parseVersion(String fileName) {
-    Pattern pattern = Pattern.compile("Version-(\\d+)-product-backup-\\d{4}-\\d{2}-\\d{2}\\.sql");
-    Matcher matcher = pattern.matcher(fileName);
-    if (matcher.matches()) {
-      return Integer.parseInt(matcher.group(1));
+    try {
+      String[] parts = fileName.split("-");
+      if (parts.length > 1) {
+        return Integer.parseInt(parts[1]);
+      }
+    } catch (NumberFormatException e) {
+      System.err.println("Invalid version number in filename: " + fileName);
     }
     return -1;
   }
+
 
   // Parse date using regex
   private String parseDate(String fileName) {

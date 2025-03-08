@@ -20,8 +20,8 @@ public class ProductView {
   private int rowLimit;
   private int pageCount = 1;
 
-  Validation validation = new Validation();
-  Constant constant = new Constant();
+  Validation v = new Validation();
+  Constant c = new Constant();
 
   public ProductView() {
     scanner = new Scanner(System.in);
@@ -104,12 +104,7 @@ public class ProductView {
         System.out.print("\t\t\t\t\t\t\t------------------------------------------------\n");
 
 
-        System.out.print("=> Choose an Option() : ");
-
-        String choosePaginationAndMenu = scanner.nextLine().trim().toUpperCase();
-
-
-//        String choosePaginationAndMenu = validation.validateInput(constant.choosePaginationAndMenuRegex, "=> Choose an Option() : ", string -> string ).toUpperCase();
+        String choosePaginationAndMenu = v.validateInput(c.CPMRegex, "=> Choose an Option() : ", string -> string).trim().toUpperCase();
 
 
         switch (choosePaginationAndMenu) {
@@ -174,19 +169,24 @@ public class ProductView {
             continue;
             // TODO: Goto specific page
           case "G":
-            try {
-              System.out.print("Page number : ");
-              int gotoSpecificPage = Integer.parseInt(scanner.nextLine().trim());
+            while (true) {
+              try {
+                System.out.print("Page number : ");
+                int gotoSpecificPage = Integer.parseInt(scanner.nextLine().trim());
 
-              if (gotoSpecificPage < 1 || gotoSpecificPage > totalPages) {
-                System.out.println("Invalid page number. Please enter a number between 1 and " + totalPages);
-              } else {
-                currentStartIndex = (gotoSpecificPage - 1) * rowLimit;
-                pageCount = gotoSpecificPage;
+                if (gotoSpecificPage < 1 || gotoSpecificPage > totalPages) {
+                  System.out.println("Invalid page number. Please enter a number between 1 and " + totalPages);
+                  continue;
+                } else {
+                  currentStartIndex = (gotoSpecificPage - 1) * rowLimit;
+                  pageCount = gotoSpecificPage;
+                }
+
+              } catch (NumberFormatException nfe) {
+                System.out.println("Invalid input. Please enter a valid number.");
+                continue;
               }
-
-            } catch (NumberFormatException nfe) {
-              System.out.println("Invalid input. Please enter a valid number.");
+              break;
             }
             break;
           case "W":
@@ -231,99 +231,97 @@ public class ProductView {
   }
 
   // Display backup file in a table
-  public void displayBackupFiles(List<BackupFile> backupFiles) {
-    if (backupFiles.isEmpty()) {
+  public void displayBackupFiles(List<BackupFile> backups) {
+    if (backups.isEmpty()) {
       System.out.println("No backups available!");
+      return;
     }
 
     CellStyle numberStyle = new CellStyle(CellStyle.HorizontalAlign.center);
-    Table t = new Table(6, BorderStyle.UNICODE_BOX_DOUBLE_BORDER_WIDE, ShownBorders.SURROUND_HEADER_AND_COLUMNS);
+    Table t = new Table(3, BorderStyle.UNICODE_BOX_DOUBLE_BORDER_WIDE, ShownBorders.ALL);
 
-    t.setColumnWidth(0, 10, 20);
-    t.setColumnWidth(1, 20, 30);
-    t.setColumnWidth(2, 20, 30);
+    t.setColumnWidth(0, 10, 20); // Column for sequence number
+    t.setColumnWidth(1, 60, 80); // Column for backup name
+    t.setColumnWidth(2, 20, 30); // Column for version number
 
-    t.addCell("No. ", numberStyle,1);
-    t.addCell("List of Backup Data", numberStyle,5);
+    t.addCell("Lists of backup data", numberStyle, 3);
 
-
-    for (int i = 0; i < backupFiles.size(); i++) {
-      BackupFile backup = backupFiles.get(i);
-      t.addCell(String.valueOf(i + 1), numberStyle);
-      t.addCell(backup.toString(), numberStyle ,5);
+    for (int i = 0; i < backups.size(); i++) {
+      BackupFile backup = backups.get(i);
+      t.addCell(String.valueOf(i + 1), numberStyle); // Sequence number
+      t.addCell(backup.toString(), numberStyle, 2); // Raw filename
     }
 
     System.out.println(t.render());
-
   }
 
   // Get input for a new product
   public Product getInputForNewProduct(int generateNewId) {
 
-    System.out.println("ID : " + generateNewId );
-
-    System.out.print("Enter product name: ");
-    String name = scanner.nextLine().trim();
-
-    System.out.print("Enter unit price: ");
-    double unitPrice = Double.parseDouble(scanner.nextLine().trim());
-
-    System.out.print("Enter stock quantity: ");
-    int stockQty = Integer.parseInt(scanner.nextLine().trim());
+    System.out.println("ID : " + generateNewId);
+    String name = v.validateInput(c.PRODUCT_NAME_REGEX, "Enter product name: ", s -> s).trim();
+    double unitPrice = v.validateInput(c.PRODUCT_UNIT_PRICE, "Enter unit price: ", Double::parseDouble);
+    int stockQty = v.validateInput(c.PRODUCT_STOCK_QTY, "Enter stock quantity: ", Integer::parseInt);
 
     return new Product(name, unitPrice, stockQty);
   }
 
   // Display the unsaved menu of update or insert
   private void handleUnSaveMenu(ProductController controller) {
-    System.out.println("'ui' for saving insert products and 'uu' for saving update products or 'b' for back to menu");
+    BreakWhile:
+    while (true) {
+      System.out.println("'ui' for saving insert products and 'uu' for saving update products or 'b' for back to menu");
 
-    System.out.print("=> Choose an Option() : ");
 
-    String unSaveOption = scanner.nextLine().trim().toUpperCase();
+      String unsavedOption = v.validateInput(c.UI_UU, "Enter your option : ", s -> s).trim().toUpperCase();
 
-    switch (unSaveOption) {
-      case "UI":
-        controller.displayUnsavedProductsForInsert();
-        break;
+      switch (unsavedOption) {
+        case "UI":
+          controller.displayUnsavedProductsForInsert();
+          break;
 
-      case "UU":
-        controller.displayUnsavedProductsForUpdate();
-        break;
+        case "UU":
+          controller.displayUnsavedProductsForUpdate();
+          break;
 
-      case "B":
-        System.out.println("Returning to main menu...");
-        break;
+        case "B":
+          System.out.println("Returning to main menu...");
+          break BreakWhile;
 
-      default:
-        System.out.println("Invalid option. Please try again.");
+        default:
+          System.out.println("Invalid option. Please try again.");
+      }
     }
+
   }
 
   // Save data to the database (update or insert)
   private void handleSaveDataToDatabase(ProductController controller) {
-    System.out.println("'si' for saving insert products and 'su' for saving update products or 'b' for back to menu");
+    BreakWhile:
+    while (true) {
 
-    System.out.print("=> Choose an Option() : ");
+      System.out.println("'si' for saving insert products and 'su' for saving update products or 'b' for back to menu");
 
-    String saveDataOption = scanner.nextLine().trim().toUpperCase();
+      String saveDataOption = v.validateInput(c.SI_SU, "Enter your option : ", s -> s).trim().toUpperCase();
 
-    switch (saveDataOption) {
-      case "SI":
-        controller.saveUnsavedInsertProducts();
-        break;
+      switch (saveDataOption) {
+        case "SI":
+          controller.saveUnsavedInsertProducts();
+          break;
 
-      case "SU":
-        controller.saveUnsavedUpdateProducts();
-        break;
+        case "SU":
+          controller.saveUnsavedUpdateProducts();
+          break;
 
-      case "B":
-        System.out.println("Returning to main menu...");
-        break;
+        case "B":
+          System.out.println("Returning to main menu...");
+          break BreakWhile;
 
-      default:
-        System.out.println("Invalid option. Please try again.");
+        default:
+          System.out.println("Invalid option. Please try again.");
+      }
     }
+
   }
 
   // Display products (used for unsaved products)
@@ -364,9 +362,7 @@ public class ProductView {
 
   // Handle update menu
   private void handleUpdateMenu(ProductController controller) throws SQLException {
-    System.out.print("=> Enter ID to update: ");
-    int productId = Integer.parseInt(scanner.nextLine().trim());
-
+    int productId = v.validateInput(c.INT, "=> Enter ID to update: ", Integer::parseInt);
     Product product = controller.displayUpdateProductTable(productId);
 
     if (product == null) {
@@ -404,41 +400,27 @@ public class ProductView {
       System.out.print("3. Qty\t\t");
       System.out.print("4. All Fields\t\t");
       System.out.print("5. Exit\n");
-      System.out.print("=> Choose an Option to update : ");
 
-      int updateOption = Integer.parseInt(scanner.nextLine().trim());
+      int updateOption = v.validateInput(c.INT, "=> Choose an Option to update : ", Integer::parseInt);
 
 
       switch (updateOption) {
         case 1:
-          System.out.print("=> Enter new name : ");
-          String newName = scanner.nextLine().trim();
+          String newName = v.validateInput(c.PRODUCT_NAME_REGEX, "=> Enter new name : ", s -> s).trim();
           controller.updateProductTable(productId, newName, null, null);
           break;
         case 2:
-          System.out.print("=> Enter new price : ");
-          Double newPrice = scanner.nextDouble();
-          scanner.nextLine();
-
+          Double newPrice = v.validateInput(c.PRODUCT_UNIT_PRICE, "=> Enter new price : ", Double::parseDouble);
           controller.updateProductTable(productId, null, newPrice, null);
           break;
         case 3:
-          System.out.print("=> Enter new stock : ");
-          Integer newStock = scanner.nextInt();
-          scanner.nextLine();
-
+          Integer newStock = v.validateInput(c.PRODUCT_UNIT_PRICE, "=> Enter new stock : ", Integer::parseInt);
           controller.updateProductTable(productId, null, null, newStock);
           break;
         case 4:
-          System.out.print("=> Enter new name : ");
-          String updateName = scanner.nextLine().trim();
-
-          System.out.print("=> Enter new price : ");
-          Double updatePrice = scanner.nextDouble();
-
-          System.out.print("=> Enter new stock : ");
-          Integer updateStock = scanner.nextInt();
-          scanner.nextLine();
+          String updateName = v.validateInput(c.PRODUCT_NAME_REGEX, "=> Enter new name : ", s -> s).trim();
+          Double updatePrice = v.validateInput(c.PRODUCT_UNIT_PRICE, "=> Enter new price : ", Double::parseDouble);
+          Integer updateStock = v.validateInput(c.PRODUCT_UNIT_PRICE, "=> Enter new stock : ", Integer::parseInt);
 
           controller.updateProductTable(productId, updateName, updatePrice, updateStock);
 
@@ -452,9 +434,7 @@ public class ProductView {
 
   // Handle get product by id
   public void handleGetProductById(ProductController controller) throws SQLException {
-    System.out.print("=> Please input id to get record : ");
-    int productId = scanner.nextInt();
-    scanner.nextLine();
+    int productId = v.validateInput(c.INT, "=> Please input id to get record : ", Integer::parseInt);
 
     Product product = controller.fetchProductById(productId);
 
@@ -491,10 +471,7 @@ public class ProductView {
 
   // Handle delete product by id
   public void handleDeleteProductById(ProductController controller) throws SQLException {
-    System.out.print("=> Please input id to delete product : ");
-    int productId = scanner.nextInt();
-    scanner.nextLine();
-
+    int productId = v.validateInput(c.INT, "=> Please input id to delete product : ", Integer::parseInt);
     Product product = controller.displayDeleteProductById(productId);
 
     if (product == null) {
@@ -524,9 +501,7 @@ public class ProductView {
     t.addCell(String.valueOf(product.getImportDate()), numberStyle);
 
     System.out.println(t.render());
-    System.out.print("=> Are you sure to delete product id : " + productId + "? (y/n) : ");
-    String choice = scanner.nextLine().trim().toUpperCase();
-
+    String choice = v.validateInput(c.ARE_YOU_SURE, "=> Are you sure to delete product id : " + productId + " ? (y/n) : ", s -> s).trim().toUpperCase();
     switch (choice) {
       case "Y":
         controller.deleteProductById(productId);
@@ -539,8 +514,7 @@ public class ProductView {
 
   // Handle get product by name
   public void handleSearchByName(ProductController controller) {
-    System.out.print("=> Enter a keyword to search for products: ");
-    String keyword = scanner.nextLine().trim();
+    String keyword = v.validateInput(c.ONLY_STRING_NUMBER, "=> Enter a keyword to search for products: ", s -> s).trim();
 
     if (keyword.isEmpty()) {
       System.out.println("Search term cannot be empty.");
@@ -588,8 +562,7 @@ public class ProductView {
 
   // Update row limit and save it to the database
   private void handleSetRowLimit(ProductController controller) {
-    System.out.print("Enter the new row limit: ");
-    String input = scanner.nextLine().trim();
+    String input = v.validateInput(c.INT, "Enter the new row limit : ", s -> s);
     try {
       int newRowLimit = Integer.parseInt(input);
       if (newRowLimit <= 0) {

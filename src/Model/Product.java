@@ -62,7 +62,6 @@ public class Product {
   public String toString() {
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     String formattedDate = (importDate != null) ? dateFormat.format(importDate) : "N/A";
-
     return id + " │ " + name + " │ " + unitPrice + " │ " + stockQty + " │ " + formattedDate;
   }
 }
