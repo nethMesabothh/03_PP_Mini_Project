@@ -4,6 +4,7 @@ import Constant.Constant;
 import Model.BackupFile;
 import Model.Product;
 import Model.ProductImplement;
+import Utils.Config;
 import Utils.Validation;
 import View.ProductView;
 
@@ -332,7 +333,7 @@ public class ProductController {
     try {
       ProcessBuilder processBuilder = new ProcessBuilder(
               "C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump", // Full path to pg_dump
-              "--dbname=postgresql://postgres:085760561Both@localhost:5432/stock",
+              Config.get("DB_NAME_PG"), //pg_dump
               "--file=" + backupFilePath,
               "--format=custom"
       );
@@ -433,7 +434,7 @@ public class ProductController {
       try {
         ProcessBuilder processBuilder = new ProcessBuilder(
                 "C:\\Program Files\\PostgreSQL\\17\\bin\\pg_restore",
-                "--dbname=postgresql://postgres:085760561Both@localhost:5432/stock",
+                Config.get("DB_NAME_PG"), //pg_restore
                 "--clean",
                 backupFilePath
         );
