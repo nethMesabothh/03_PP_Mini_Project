@@ -234,7 +234,6 @@ public class ProductController {
         Double unitPrice = product.getUnitPrice();
         Integer stockQty = product.getStockQty();
 
-        // Call the DAO method to update the product in the database
         pim.updateProduct(productId, name, unitPrice, stockQty);
       }
 
