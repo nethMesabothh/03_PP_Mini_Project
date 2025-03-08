@@ -1,11 +1,14 @@
 package Model;
 
+import Constant.Constant;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProductImplement {
   private Connection connection;
+  Constant c = new Constant();
 
   public ProductImplement(Connection connection) {
     this.connection = connection;
@@ -68,7 +71,7 @@ public class ProductImplement {
     }
 
     if (!hasUpdated) {
-      throw new IllegalArgumentException("No fields to update");
+      throw new IllegalArgumentException(c.RED + "No fields to update" + c.RESET);
     }
 
     sqlBuilder.setLength(sqlBuilder.length() - 2);
@@ -103,12 +106,12 @@ public class ProductImplement {
       int rowsAffected = preparedStatement.executeUpdate();
 
       if (rowsAffected > 0) {
-        System.out.println("Product with ID " + productId + " deleted successfully.");
+        System.out.println(c.GREEN + "Product with ID " + productId + " deleted successfully." + c.RESET);
       } else {
-        System.out.println("No product found with ID " + productId + ". Nothing was deleted.");
+        System.out.println(c.RED + "No product found with ID " + productId + ". Nothing was deleted." + c.RESET);
       }
     } catch (SQLException e) {
-      throw new SQLException("An error occurred while deleting the product: " + e.getMessage());
+      throw new SQLException(c.RED + "An error occurred while deleting the product: " + e.getMessage() + c.RESET);
     }
   }
 
