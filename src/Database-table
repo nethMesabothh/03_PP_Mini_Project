@@ -1,0 +1,33 @@
+-- Creating products table
+CREATE TABLE products (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    unit_price NUMERIC(10, 2) NOT NULL,
+    stock_qty INTEGER NOT NULL,
+    import_date DATE NOT NULL DEFAULT CURRENT_DATE
+);
+
+-- Insert data to products table
+INSERT INTO products (name, unit_price, stock_qty, import_date)
+VALUES
+    ('Laptop Pro X', 1200.00, 15, '2024-03-01'),
+    ('Wireless Mouse', 25.99, 50, '2024-03-02'),
+    ('Gaming Keyboard', 89.99, 30, '2024-03-03'),
+    ('4K Monitor', 349.99, 10, '2024-03-04'),
+    ('Smartphone Z Max', 699.99, 25, '2024-03-05'),
+    ('Bluetooth Headphones', 79.99, 40, '2024-03-06'),
+    ('External SSD 1TB', 149.99, 20, '2024-03-07'),
+    ('Desk Lamp LED', 39.99, 60, '2024-03-08'),
+    ('Webcam HD 1080p', 59.99, 25, '2024-03-09'),
+    ('Portable Charger 20000mAh', 49.99, 55, '2024-03-10');
+
+-- Create settings (row-limits) table
+CREATE TABLE settings (
+    id SERIAL PRIMARY KEY,
+    key_name VARCHAR(255) NOT NULL UNIQUE,
+    value TEXT NOT NULL
+);
+
+-- Insert default row-limit
+INSERT INTO settings (key_name, value)
+VALUES ('row_limit', '3'); -- Default row limit is 3
