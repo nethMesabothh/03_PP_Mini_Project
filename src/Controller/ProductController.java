@@ -303,7 +303,6 @@ public class ProductController {
   public void updateRowLimit(int rowLimit) {
     try {
       pim.updateRowLimit(rowLimit);
-      System.out.println(c.GREEN + "Row limit updated successfully." + c.RESET);
     } catch (SQLException e) {
       System.err.println(c.RED + "An error occurred while updating the row limit: " + e.getMessage() + c.RESET);
     }
