@@ -36,7 +36,7 @@ public class ProductView {
   //Initialize row limit
   public void initializeRowLimit(ProductController controller) {
     rowLimit = controller.getRowLimit();
-    System.out.println("Row limit initialized to: " + rowLimit);
+    //System.out.println("Row limit initialized to: " + rowLimit);
   }
 
   // Display all products & Pagination & Menu
@@ -70,41 +70,40 @@ public class ProductView {
         products.stream().skip(currentStartIndex).limit(rowLimit).forEach(product -> {
           t.addCell(String.valueOf(product.getId()), numberStyle);
           t.addCell(String.valueOf(product.getName()), numberStyle);
-          t.addCell(String.valueOf(product.getUnitPrice()), numberStyle);
+          t.addCell("$ " + product.getUnitPrice(), numberStyle);
           t.addCell(String.valueOf(product.getStockQty()), numberStyle);
           t.addCell(String.valueOf(product.getImportDate()), numberStyle);
         });
         int totalPages = (products.size() + rowLimit - 1) / rowLimit;
 
-        t.addCell("Page : " + pageCount + " of " + totalPages, numberStyle, 2);
-        t.addCell("Total Record : " + totalRecord, numberStyle, 3);
+        t.addCell("Page : " + c.YELLOW + pageCount + c.RESET + " of " + c.RED + totalPages + c.RESET, numberStyle, 2);
+        t.addCell("Total Record : " + c.GREEN + totalRecord + c.RESET, numberStyle, 3);
 
         System.out.println(t.render());
 
 
         System.out.print("\t\t\t\t\t\t\t------------------------ Menu ------------------------\n");
 
-        System.out.print("\t\tN. Next Page\t\t");
-        System.out.print("P. Previous Page\t\t");
-        System.out.print("F. First Page\t\t");
-        System.out.print("L. Last Page\t\t");
-        System.out.print("G. Goto\t\t\n\n");
+        System.out.print("\t\t" + c.GREEN + "N" + c.RESET + ". Next Page\t\t");
+        System.out.print(c.GREEN + "P" + c.RESET + ". Previous Page\t\t");
+        System.out.print(c.GREEN + "F" + c.RESET + ". First Page\t\t");
+        System.out.print(c.GREEN + "L" + c.RESET + ". Last Page\t\t");
+        System.out.print(c.GREEN + "G" + c.RESET + ". Goto\t\t\n\n");
 
-        System.out.print("W. Write Page\t\t");
-        System.out.print("R. Read (id)\t\t");
-        System.out.print("U. Update\t\t");
-        System.out.print("D. Delete\t\t");
-        System.out.print("S. Search (name)\t\t");
-        System.out.print("Sr. Set rows\t\t\n");
-        System.out.print("Sa. Save\t\t\t");
-        System.out.print("Us. UnSave\t\t\t");
-        System.out.print("Ba. Backup\t\t");
-        System.out.print("Rs. Restore\t\t");
-        System.out.print("E. Exit\n");
+        System.out.print(c.GREEN + "W)" + c.RESET + " Write Page\t\t");
+        System.out.print(c.GREEN + "R)" + c.RESET + " Read (id)\t\t");
+        System.out.print(c.GREEN + "D)" + c.RESET + " Delete\t\t");
+        System.out.print(c.GREEN + "S)" + c.RESET + " Search (name)\t\t");
+        System.out.print(c.GREEN + "Sr)" + c.RESET + " Set rows\t\t\n");
+        System.out.print(c.GREEN + "Sa)" + c.RESET + " Save\t\t\t");
+        System.out.print(c.GREEN + "Us)" + c.RESET + " Unsaved\t\t\t");
+        System.out.print(c.GREEN + "Ba)" + c.RESET + " Backup\t\t");
+        System.out.print(c.GREEN + "Rs)" + c.RESET + " Restore\t\t\t\t");
+        System.out.print(c.GREEN + "E)" + c.RESET + " Exit\n");
         System.out.print("\t\t\t\t\t\t\t------------------------------------------------\n");
 
 
-        String choosePaginationAndMenu = v.validateInput(c.CPMRegex, "=> Choose an Option() : ", string -> string).trim().toUpperCase();
+        String choosePaginationAndMenu = v.validateInput(c.CPMRegex, c.YELLOW + "=> Choose an Option() : " + c.RESET, string -> string).trim().toUpperCase();
 
 
         switch (choosePaginationAndMenu) {
@@ -124,14 +123,15 @@ public class ProductView {
               }
             }
             if (lastIndex == -1) {
-              System.out.println("No data available!");
+              System.out.println(c.RED + "No data available!" + c.RESET);
               continue;
             }
             int maxStartIndex = Math.max(0, lastIndex - (rowLimit - 1));
 
             if (currentStartIndex >= maxStartIndex) {
 
-              System.out.println("You already on the last page.");
+              System.out.println(c.RED + "You already on the last page." + c.RESET);
+
               continue;
             }
 
@@ -175,7 +175,9 @@ public class ProductView {
                 int gotoSpecificPage = Integer.parseInt(scanner.nextLine().trim());
 
                 if (gotoSpecificPage < 1 || gotoSpecificPage > totalPages) {
-                  System.out.println("Invalid page number. Please enter a number between 1 and " + totalPages);
+
+                  System.out.println(c.RED + "Invalid page number. Please enter a number between 1 and " + totalPages + c.RESET);
+
                   continue;
                 } else {
                   currentStartIndex = (gotoSpecificPage - 1) * rowLimit;
@@ -183,7 +185,7 @@ public class ProductView {
                 }
 
               } catch (NumberFormatException nfe) {
-                System.out.println("Invalid input. Please enter a valid number.");
+                System.out.println(c.RED + "Invalid input. Please enter a valid number." + c.RESET);
                 continue;
               }
               break;
@@ -258,7 +260,7 @@ public class ProductView {
   // Get input for a new product
   public Product getInputForNewProduct(int generateNewId) {
 
-    System.out.println("ID : " + generateNewId);
+    System.out.println("ID : " + c.GREEN + generateNewId + c.RESET);
     String name = v.validateInput(c.PRODUCT_NAME_REGEX, "Enter product name: ", s -> s).trim();
     double unitPrice = v.validateInput(c.PRODUCT_UNIT_PRICE, "Enter unit price: ", Double::parseDouble);
     int stockQty = v.validateInput(c.PRODUCT_STOCK_QTY, "Enter stock quantity: ", Integer::parseInt);
@@ -285,11 +287,13 @@ public class ProductView {
           break;
 
         case "B":
-          System.out.println("Returning to main menu...");
+          System.out.println(c.YELLOW + "Returning to main menu..." + c.RESET);
           break BreakWhile;
 
         default:
-          System.out.println("Invalid option. Please try again.");
+          System.out.println(c.RED + "Invalid option. Please try again." + c.RESET);
+
+
       }
     }
 
@@ -314,11 +318,12 @@ public class ProductView {
           break;
 
         case "B":
-          System.out.println("Returning to main menu...");
+          System.out.println(c.YELLOW + "Returning to main menu..." + c.RESET);
           break BreakWhile;
 
         default:
-          System.out.println("Invalid option. Please try again.");
+          System.out.println(c.RED + "Invalid option. Please try again." + c.RESET);
+
       }
     }
 
@@ -327,7 +332,7 @@ public class ProductView {
   // Display products (used for unsaved products)
   public void displayProducts(List<Product> products) {
     if (products == null || products.isEmpty()) {
-      System.out.println("No products available!");
+      System.out.println(c.RED + "No products available!" + c.RESET);
       return;
     }
 
@@ -366,7 +371,7 @@ public class ProductView {
     Product product = controller.displayUpdateProductTable(productId);
 
     if (product == null) {
-      System.out.println("Product not found!");
+      System.out.println(c.RED + "Product not found!" + c.RESET);
       return;
     }
 
@@ -401,7 +406,7 @@ public class ProductView {
       System.out.print("4. All Fields\t\t");
       System.out.print("5. Exit\n");
 
-      int updateOption = v.validateInput(c.INT, "=> Choose an Option to update : ", Integer::parseInt);
+      int updateOption = v.validateInput(c.INT, c.YELLOW + "=> Choose an Option to update : " + c.RESET, Integer::parseInt);
 
 
       switch (updateOption) {
@@ -439,7 +444,7 @@ public class ProductView {
     Product product = controller.fetchProductById(productId);
 
     if (product == null) {
-      System.out.println("Product not found!");
+      System.out.println(c.RED + "Product not found!" + c.RESET);
       return;
     }
 
@@ -475,7 +480,8 @@ public class ProductView {
     Product product = controller.displayDeleteProductById(productId);
 
     if (product == null) {
-      System.out.println("Product not found!");
+      System.out.println(c.RED + "Product not found!" + c.RESET);
+
       return;
     }
 
@@ -501,7 +507,7 @@ public class ProductView {
     t.addCell(String.valueOf(product.getImportDate()), numberStyle);
 
     System.out.println(t.render());
-    String choice = v.validateInput(c.ARE_YOU_SURE, "=> Are you sure to delete product id : " + productId + " ? (y/n) : ", s -> s).trim().toUpperCase();
+    String choice = v.validateInput(c.ARE_YOU_SURE, c.YELLOW + "=> Are you sure to delete product id : " + productId + " ? (y/n) : " + c.RESET, s -> s).trim().toUpperCase();
     switch (choice) {
       case "Y":
         controller.deleteProductById(productId);
@@ -517,7 +523,8 @@ public class ProductView {
     String keyword = v.validateInput(c.ONLY_STRING_NUMBER, "=> Enter a keyword to search for products: ", s -> s).trim();
 
     if (keyword.isEmpty()) {
-      System.out.println("Search term cannot be empty.");
+      System.out.println(c.RED + "Search term cannot be empty." + c.RESET);
+
       return;
     }
 
@@ -527,7 +534,8 @@ public class ProductView {
   // Display products by name
   public void displayProductsByName(List<Product> products) {
     if (products == null || products.isEmpty()) {
-      System.out.println("No products available!");
+      System.out.println(c.RED + "No products available!" + c.RESET);
+
       return;
     }
 
@@ -566,14 +574,16 @@ public class ProductView {
     try {
       int newRowLimit = Integer.parseInt(input);
       if (newRowLimit <= 0) {
-        System.out.println("Row limit must be greater than 0.");
+        System.out.println(c.RED + "Row limit must be greater than 0." + c.RESET);
+
         return;
       }
       controller.updateRowLimit(newRowLimit);
       this.rowLimit = newRowLimit;
-      System.out.println("Row limit updated successfully.");
+      System.out.println(c.GREEN + "Row limit updated successfully." + c.RESET);
     } catch (NumberFormatException e) {
-      System.out.println("Invalid input. Please enter a valid number.");
+      System.out.println(c.RED + "Invalid input. Please enter a valid number." + c.RESET);
+
     }
   }
 }
