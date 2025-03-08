@@ -12,4 +12,7 @@ public class Constant {
   public final String  ARE_YOU_SURE = "^(y|Y|n|N)$";
   public final String  ONLY_STRING_NUMBER = "^[A-Za-z0-9 ]+$";
 
+
+ //Adding color constant Here
+
 }
