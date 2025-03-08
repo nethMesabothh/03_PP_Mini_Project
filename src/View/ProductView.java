@@ -92,13 +92,14 @@ public class ProductView {
 
         System.out.print(c.GREEN + "W)" + c.RESET + " Write Page\t\t");
         System.out.print(c.GREEN + "R)" + c.RESET + " Read (id)\t\t");
+        System.out.print(c.GREEN + "U)" + c.RESET + " Update\t\t");
         System.out.print(c.GREEN + "D)" + c.RESET + " Delete\t\t");
         System.out.print(c.GREEN + "S)" + c.RESET + " Search (name)\t\t");
         System.out.print(c.GREEN + "Sr)" + c.RESET + " Set rows\t\t\n");
         System.out.print(c.GREEN + "Sa)" + c.RESET + " Save\t\t\t");
         System.out.print(c.GREEN + "Us)" + c.RESET + " Unsaved\t\t\t");
         System.out.print(c.GREEN + "Ba)" + c.RESET + " Backup\t\t");
-        System.out.print(c.GREEN + "Rs)" + c.RESET + " Restore\t\t\t\t");
+        System.out.print(c.GREEN + "Rs)" + c.RESET + " Restore\t\t");
         System.out.print(c.GREEN + "E)" + c.RESET + " Exit\n");
         System.out.print("\t\t\t\t\t\t\t------------------------------------------------\n");
 
@@ -272,8 +273,7 @@ public class ProductView {
   private void handleUnSaveMenu(ProductController controller) {
     BreakWhile:
     while (true) {
-      System.out.println("'ui' for saving insert products and 'uu' for saving update products or 'b' for back to menu");
-
+      System.out.println(c.GREEN + "'ui'"+ c.RESET +" for display unsaved insert products and "+ c.GREEN + "'uu'" + c.RESET + " for display unsaved update products or "+ c.RED +"'b'"+ c.RESET +" for back to menu");
 
       String unsavedOption = v.validateInput(c.UI_UU, "Enter your option : ", s -> s).trim().toUpperCase();
 
@@ -304,7 +304,8 @@ public class ProductView {
     BreakWhile:
     while (true) {
 
-      System.out.println("'si' for saving insert products and 'su' for saving update products or 'b' for back to menu");
+      System.out.println(c.GREEN + "'ui'"+ c.RESET +" for saving insert products and "+ c.GREEN + "'uu'" + c.RESET + " for saving update products or "+ c.RED +"'b'"+ c.RESET +" for back to menu");
+
 
       String saveDataOption = v.validateInput(c.SI_SU, "Enter your option : ", s -> s).trim().toUpperCase();
 
